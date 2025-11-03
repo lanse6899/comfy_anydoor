@@ -1,8 +1,10 @@
 # AnyDoor - ComfyUI 节点 Bypass 控制器插件
 
 AnyDoor 是一个 ComfyUI 插件，用于根据节点编号控制工作流中任意节点的 bypass 状态。
+
 PS：商用平台使用请知会一声哈！
-说明视频：
+
+使用说明视频：
 https://www.bilibili.com/video/BV11k1wBhErF/
 
 ## 功能特性
@@ -116,6 +118,7 @@ ComfyUI 节点有以下几种模式：
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
+
 
 
 
