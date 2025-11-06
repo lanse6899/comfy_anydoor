@@ -497,8 +497,8 @@ class TextMatchNodeController:
 
 class FiveButtonBypassController:
     """
-    五键切换节点控制器：提供5组节点ID，选择当前激活的索引（1-5），
-    将激活组对应的节点设置为忽略(mode=2)，其他组对应节点恢复为正常(mode=0)。
+    五键切换节点控制器：提供5组节点ID，选择当前激活的索引（0-5），
+    0=所有节点正常执行，1-5=将激活组对应的节点设置为忽略(mode=2)，其他组对应节点恢复为正常(mode=0)。
     """
 
     @classmethod
@@ -506,12 +506,12 @@ class FiveButtonBypassController:
         return {
             "required": {
                 "active_index": ("INT", {
-                    "default": 1,
-                    "min": 1,
+                    "default": 0,
+                    "min": 0,
                     "max": 5,
                     "step": 1,
-                    "display_name": "当前按钮(1-5)",
-                    "tooltip": "选择当前激活的按钮索引(1-5)"
+                    "display_name": "当前按钮(0-5)",
+                    "tooltip": "选择当前激活的按钮索引(0-5)\n0=所有节点正常执行\n1-5=对应组忽略，其余组正常"
                 }),
                 "node_id1": ("STRING", {
                     "default": "",
@@ -546,7 +546,7 @@ class FiveButtonBypassController:
     RETURN_NAMES = ("status_info", "mode_value")
     FUNCTION = "apply_switch"
     CATEGORY = "🔵BB anydoor"
-    DESCRIPTION = "五键切换：选择一个组忽略，其余恢复正常"
+    DESCRIPTION = "五键切换：0=所有节点正常执行，1-5=选择一个组忽略，其余恢复正常"
     OUTPUT_NODE = True
 
     def apply_switch(self, active_index: int, node_id1: str = "", node_id2: str = "",
@@ -562,11 +562,38 @@ class FiveButtonBypassController:
                 ids = [int(n) for n in nums if n.isdigit() and int(n) > 0]
                 parsed_groups.append(list(set(ids)))
 
-            idx = max(1, min(5, int(active_index)))
+            idx = max(0, min(5, int(active_index)))
+            
+            # 如果 active_index 为 0，所有节点恢复正常
+            if idx == 0:
+                # 收集所有组的节点ID
+                all_node_ids = []
+                for ids in parsed_groups:
+                    all_node_ids.extend(ids)
+                all_node_ids = list(set(all_node_ids))
+                
+                # 提交前端处理请求：所有节点恢复正常
+                try:
+                    if not hasattr(self, '_control_requests'):
+                        self._control_requests = []
+                    for nid in all_node_ids:
+                        self._control_requests.append({'node_id': nid, 'mode': 0, 'mode_name': '正常执行'})
+                except:
+                    pass
+                
+                # 生成状态说明
+                if all_node_ids:
+                    status = f"✓ 所有节点已恢复正常\n当前按钮: 0 (正常执行)\n恢复节点: {', '.join(map(str, all_node_ids))}\n注意: 实际设置由前端在执行/变更时应用"
+                else:
+                    status = f"✓ 当前按钮: 0 (正常执行)\n注意: 未配置任何节点ID"
+                
+                return (status, 0)
+            
+            # active_index 为 1-5 的情况（保持原逻辑）
             active_zero_based = idx - 1
 
             # 需要忽略的节点：当前组
-            bypass_ids = parsed_groups[active_zero_based] if parsed_groups else []
+            bypass_ids = parsed_groups[active_zero_based] if active_zero_based < len(parsed_groups) else []
 
             # 需要恢复的节点：其余组
             restore_ids = []

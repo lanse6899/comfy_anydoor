@@ -998,14 +998,14 @@ app.registerExtension({
                                 if (typeof activeIndexWidget.value !== 'undefined') {
                                     activeIndexValue = parseInt(activeIndexWidget.value);
                                 } else if (typeof activeIndexWidget.options !== 'undefined') {
-                                    activeIndexValue = parseInt(activeIndexWidget.options?.selected ?? 1);
+                                    activeIndexValue = parseInt(activeIndexWidget.options?.selected ?? 0);
                                 } else if (typeof controlNode.getInputValue === 'function') {
                                     try {
                                         activeIndexValue = parseInt(controlNode.getInputValue("active_index"));
                                     } catch(e) {}
                                 }
-                                if (!activeIndexValue || isNaN(activeIndexValue)) activeIndexValue = 1;
-                                if (activeIndexValue < 1) activeIndexValue = 1;
+                                if (activeIndexValue === null || isNaN(activeIndexValue)) activeIndexValue = 0;
+                                if (activeIndexValue < 0) activeIndexValue = 0;
                                 if (activeIndexValue > 5) activeIndexValue = 5;
 
                                 // 解析五组 node_id 文本为数字数组
@@ -1026,26 +1026,40 @@ app.registerExtension({
                                     return parseIds(v);
                                 });
 
-                                const bypassIds = groupIds[activeIndexValue - 1] || [];
-                                const restoreIds = [...new Set(groupIds.flatMap((arr, idx) => idx === (activeIndexValue - 1) ? [] : arr))].filter(id => !bypassIds.includes(id));
-
                                 // 使用历史避免无谓重复
                                 if (!window.AnyDoor.controlHistory) window.AnyDoor.controlHistory = new Map();
                                 const historyKey = `FiveButtonBypassController_${controlNode.id}`;
                                 const previousBypass = window.AnyDoor.controlHistory.get(historyKey) || [];
-                                const prevKey = [...previousBypass].sort((a,b)=>a-b).join(',');
-                                const currKey = [...bypassIds].sort((a,b)=>a-b).join(',');
 
-                                // 先恢复之前不再需要忽略的节点
-                                const toRestoreFromPrev = previousBypass.filter(id => !bypassIds.includes(id));
-                                toRestoreFromPrev.forEach(nodeId => setNodeBypass(nodeId, 0));
+                                // 如果 active_index 为 0，所有节点恢复正常
+                                if (activeIndexValue === 0) {
+                                    // 收集所有组的节点ID
+                                    const allNodeIds = [...new Set(groupIds.flat())];
+                                    
+                                    // 恢复所有之前被忽略的节点
+                                    previousBypass.forEach(nodeId => setNodeBypass(nodeId, 0));
+                                    
+                                    // 恢复所有组的节点
+                                    allNodeIds.forEach(nodeId => setNodeBypass(nodeId, 0));
+                                    
+                                    // 清空历史记录
+                                    window.AnyDoor.controlHistory.set(historyKey, []);
+                                } else {
+                                    // active_index 为 1-5 的情况（保持原逻辑）
+                                    const bypassIds = groupIds[activeIndexValue - 1] || [];
+                                    const restoreIds = [...new Set(groupIds.flatMap((arr, idx) => idx === (activeIndexValue - 1) ? [] : arr))].filter(id => !bypassIds.includes(id));
 
-                                // 恢复其余组
-                                restoreIds.forEach(nodeId => setNodeBypass(nodeId, 0));
-                                // 设置本组忽略
-                                bypassIds.forEach(nodeId => setNodeBypass(nodeId, 2));
+                                    // 先恢复之前不再需要忽略的节点
+                                    const toRestoreFromPrev = previousBypass.filter(id => !bypassIds.includes(id));
+                                    toRestoreFromPrev.forEach(nodeId => setNodeBypass(nodeId, 0));
 
-                                window.AnyDoor.controlHistory.set(historyKey, [...bypassIds]);
+                                    // 恢复其余组
+                                    restoreIds.forEach(nodeId => setNodeBypass(nodeId, 0));
+                                    // 设置本组忽略
+                                    bypassIds.forEach(nodeId => setNodeBypass(nodeId, 2));
+
+                                    window.AnyDoor.controlHistory.set(historyKey, [...bypassIds]);
+                                }
                             } catch(e) {
                                 console.warn('AnyDoor: 处理 FiveButtonBypassController 时出错', e);
                             }

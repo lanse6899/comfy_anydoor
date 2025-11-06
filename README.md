@@ -2,8 +2,6 @@
 
 AnyDoor 是一个 ComfyUI 插件，用于根据节点编号控制工作流中任意节点的 bypass 状态。
 
-<img width="884" height="667" alt="123" src="https://github.com/user-attachments/assets/04da8a02-a11b-46e3-9977-ee196ea6bb3b" />
-
 PS：商用平台方使用请知会一声哈！
 
 使用说明视频：
@@ -120,7 +118,6 @@ ComfyUI 节点有以下几种模式：
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
-
 
 
 
