@@ -1,4 +1,4 @@
-# AnyDoor - ComfyUI 节点控制与惰性值机制插件
+# AnyDoor - ComfyUI 节点控制与执行支线插件
 
 AnyDoor 是一个功能强大的 ComfyUI 插件，提供节点 Bypass 控制和执行分支功能。
 
@@ -55,5 +55,6 @@ https://www.bilibili.com/video/BV11k1wBhErF/
 ## 许可证
 
 MIT License
+
 
 
