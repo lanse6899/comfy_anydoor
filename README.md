@@ -5,7 +5,7 @@ AnyDoor 是一个功能强大的 ComfyUI 插件，提供节点 Bypass 控制和�
 <img width="1168" height="726" alt="33" src="https://github.com/user-attachments/assets/0cd6447d-aa61-4f5b-991b-803e79c265b0" />
 
 
-PS：商用平台方使用请知会一声哈！
+PS：商用平台方使用请告知！
 
 使用说明视频：
 https://www.bilibili.com/video/BV11k1wBhErF/
@@ -55,6 +55,7 @@ https://www.bilibili.com/video/BV11k1wBhErF/
 ## 许可证
 
 MIT License
+
 
 
 
